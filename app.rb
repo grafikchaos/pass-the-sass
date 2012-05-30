@@ -53,6 +53,7 @@ class App < Sinatra::Base
     @vars = params[:vars]
     @compass = params[:compass]
 
+    # Figure out which kind of sass file
     if File.extname(@sass_file) == '.sass'
       @type = 'sass/'
     else
@@ -63,9 +64,9 @@ class App < Sinatra::Base
       f.write(params['sass'][:tempfile].read)
     end
 
-    if File.extname(@sass_file) == '.sass'
+    if @type == 'sass/'
       sass :example
-    elsif File.extname(@sass_file) == '.scss'
+    elsif @type == 'scss/'
       scss :example
     else
       "File extension error"
