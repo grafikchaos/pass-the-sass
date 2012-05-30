@@ -1,5 +1,9 @@
+@import "dependancy1";
+@import "dependancy2";
+
 $primary_color: #abcabc;
 $secondary_color: #111122;
+
 
 body {
   background-color: $primary_color;
