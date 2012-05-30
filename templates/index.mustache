@@ -1,0 +1,14 @@
+<h1>{{title}}</h1>
+
+<p>{{content}}</p>
+
+
+<form action="/compile/" method="POST">
+<input name="vars" placeholder="updated vars (e.g. $var1=example,$var2=#000,etc..)" type="text">
+<textarea name="sass" placeholder="Your Sass"></textarea>
+<label for="compass"><input name="compass" type="checkbox">Compass ?</label>
+<input name="submit" type="submit">
+</form>
+
+
+{{> footer}}
