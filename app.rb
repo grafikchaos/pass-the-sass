@@ -49,11 +49,17 @@ class App < Sinatra::Base
 
     @domain = params[:domain]
     @sass = params[:sass]
+    @sass_file = params['sass'][:filename]
     @vars = params[:vars]
     @compass = params[:compass]
-    @sass_file = params['sass'][:filename]
 
-    File.open('views/' + @sass_file, "w") do |f|
+    if File.extname(@sass_file) == '.sass'
+      @type = 'sass/'
+    else
+      @type = 'scss/'
+    end
+
+    File.open('uploads/' + @type + @sass_file, "w") do |f|
       f.write(params['sass'][:tempfile].read)
     end
 
