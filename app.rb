@@ -12,6 +12,7 @@ class App < Sinatra::Base
 
   get '/' do
     @title = "hi there"
+    @content = "Welcome to Pass the Sass"
     mustache :index
   end
 

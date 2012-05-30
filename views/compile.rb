@@ -2,7 +2,7 @@ class App
   module Views
     class Compile < Layout
       def content
-        "Sass Passed - here is your css"
+        @content || "Enter your updated variables & sass and hang on to yer britches!"
       end
       def domain
         @domain
