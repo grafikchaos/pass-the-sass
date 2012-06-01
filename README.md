@@ -4,7 +4,7 @@ pass-the-sass
 A web service that allows you to pass in SASS files in order to generate CSS on the fly.
 
 
-The endpoint that matters is at `/compile/` - you'll make a POST with the following parameters:
+The endpoint that matters is at `/api/` - you'll make a POST with the following parameters:
 
 sass, vars, compass, domain, origin.
 
