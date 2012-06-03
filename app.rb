@@ -47,6 +47,9 @@ class App < Sinatra::Base
   end
 
 
+#
+# curl 
+#
   post '/api/?' do
 
     # themeName-versionNum
@@ -92,37 +95,39 @@ class App < Sinatra::Base
       #Check if the directory exists first
       if File::directory?("uploads/" + @domain)
         #do nothing, the target directory exists
+        #
+        # We already have the proper files, let's just replace vars & recompile!
       else
+        # Make the directory!
         Dir.mkdir("uploads/" + @domain)
+
+        # Store the to-be-compiled sass in the directory! (If the domain doesn't exist!)
+        if @type and @sass_file
+          File.open('uploads/' + @domain + '/' + @sass_file, "w") do |f|
+            f.write(params['sass'][:tempfile].read)
+          end
+        end
+
+        # Store the dependancies in the directory! (If the domain doesn't exist!)
+        if @deps
+          @deps.each { |dep, key|
+            File.open('uploads/'+ @domain + '/' + dep[:filename], "w") do |f|
+              f.write(dep[:tempfile].read)
+            end
+          }
+        end
       end
-    # Create catch all folder for non domain posts
+
+    # Domain wasn't posted - it's required, return error message.
     else
-      if File::directory?("uploads/temp")
-        #do nothing cause it exists you joker
-      else
-        Dir.mkdir("uploads/" + @domain)
-      end
-      
+      "Sorry charlie, we need a domain to process your request. Try again!"
     end
 
-    # Store stuff in uploads/themeName-versionNum
-    if @domain and @type and @sass_file
-      File.open('uploads/' + @domain + '/' + @sass_file, "w") do |f|
-        f.write(params['sass'][:tempfile].read)
-      end
-    end
-    if @domain and @deps
-      @deps.each { |dep, key|
-        File.open('uploads/'+ @domain + '/' + dep[:filename], "w") do |f|
-          f.write(dep[:tempfile].read)
-        end
-      }
-    end
 
     if @type == 'sass/'
-      sass :"#{@domain}/#{@sass_compile}"
+      sass :"#{@domain}/#{@sass_compile}-temp"
     elsif @type == 'scss/'
-      scss :"#{@domain}/#{@sass_compile}"
+      scss :"#{@domain}/#{@sass_compile}-temp"
     else
       "File extension error"
     end
@@ -139,7 +144,7 @@ class App < Sinatra::Base
     if params[:sass]
       @sass = params[:sass]
       @sass_file = params['sass'][:filename]
-      @sass_compile = @sass_file[0..-6]
+      @sass_compile = @sass_file[0...-5]
     end
     if params[:deps]
       @deps = params[:deps]
@@ -170,57 +175,74 @@ class App < Sinatra::Base
       end
     end
 
-    # Create directory for posted domain
+    # Create directory for this domain
     if @domain
+
       #Check if the directory exists first
       if File::directory?("uploads/" + @domain)
         #do nothing, the target directory exists
+        #
+        # We already have the proper files, let's just replace vars & recompile!
       else
+        # Make the directory!
         Dir.mkdir("uploads/" + @domain)
-      end
-    # Create catch all folder for non domain posts
-    else
-      if File::directory?("uploads/temp")
-        #do nothing cause it exists you joker
-      else
-        Dir.mkdir("uploads/" + @domain)
-      end
-      
-    end
 
-    # Store sass file in uploads/themeName-versionNum
-    if @domain and @type and @sass_file
-      File.open('uploads/' + @domain + '/' + @sass_file, "w") do |f|
-        f.write(params['sass'][:tempfile].read)
-      end
-    end
-    # Store dep files in uploads/themeName-versionNum
-    if @domain and @deps
-      @deps.each { |dep, key|
-        File.open('uploads/'+ @domain + '/' + dep[:filename], "w") do |f|
-          f.write(dep[:tempfile].read)
+        # Store the to-be-compiled sass in the directory! (If the domain doesn't exist!)
+        if @type and @sass_file
+          File.open('uploads/' + @domain + '/' + @sass_file, "w") do |f|
+            f.write(params['sass'][:tempfile].read)
+          end
         end
-      }
-    end
 
-
-    #get files in uploads/themeName-versionNum
-    files = Dir["uploads/#{@domain}/*"]
-    #parse files & replace vars
-    files.each do |file_name|
-      text = File.read(file_name)
-      if @type = 'scss/'
-        # replace vars for scss
-        new_content = text.gsub(/\$primary_color(\s)?:(\s)?(.+)/, "$primary_color: ZOMG!")
-      elsif @type = 'sass/'
-        # replace vars for sass
-        new_content = text.gsub(/\$primary_color(\s)?:(\s)?(.+)/, "$primary_color: ZOMG!")
+        # Store the dependancies in the directory! (If the domain doesn't exist!)
+        if @deps
+          @deps.each { |dep, key|
+            File.open('uploads/'+ @domain + '/' + dep[:filename], "w") do |f|
+              f.write(dep[:tempfile].read)
+            end
+          }
+        end
       end
-      File.open(file_name, "w") { |file| file.write new_content }
-    end
-    
 
-    "#{files}"
+    # Domain wasn't posted - it's required, return error message.
+    else
+      @output = "Sorry charlie, we need a domain to process your request. Try again!"
+    end
+
+
+    if @domain
+      #get files in uploads/themeName-versionNum
+      files = Dir["uploads/#{@domain}/*"]
+      #parse files & replace vars
+      files.each do |file|
+
+        # Set up file variables to work with
+        file_content  = File.read(file)
+        file_ext      = File.extname(file)
+        file_name     = File.basename(file,File.extname(file))
+
+
+        # Check if type of file is scss
+        if file_ext = '.scss'
+          # replace vars for scss
+          new_content = file_content.gsub(/\$primary_color(\s)?:(\s)?(.+)/, "$primary_color: ZOMG!")
+        # Check if type of file is sass
+        elsif file_ext = '.sass'
+          # replace vars for sass
+            new_content = file_content.gsub(/\$primary_color(\s)?:(\s)?(.+)/, "$primary_color: ZOMG!")
+        end
+
+        # Check if rewriting the file is worth doing
+          if not file_content.eql?(new_content)
+          # It is! Make a new file - which we'll call the same but append "temp"
+          newfile = File.new("uploads/#{@domain}/#{file_name}-temp#{file_ext}", "w")
+          # Open the File we just made, write the new content to the temp file.
+          File.open(newfile, "w" ) { |f| f.write new_content }
+        end
+      end
+    end
+
+    "#{@sass}"
 
 
 
