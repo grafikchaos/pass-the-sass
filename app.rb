@@ -139,7 +139,7 @@ class App < Sinatra::Base
 
     # themeName-versionNum
     if params[:domain]
-      @domain = params[:domain].to_s + "/"
+      @domain = params[:domain].to_s
     end
     if params[:sass]
       @sass = params[:sass]
@@ -179,7 +179,7 @@ class App < Sinatra::Base
     if @domain
 
       #Check if the directory exists first
-      if File::directory?("uploads/" + @domain)
+      if File::directory?("uploads/" + @domain + "/")
         #do nothing, the target directory exists
         #
         # We already have the proper files, let's just replace vars & recompile!
@@ -213,6 +213,8 @@ class App < Sinatra::Base
     if @domain
       #get files in uploads/themeName-versionNum
       files = Dir["uploads/#{@domain}/*"]
+      #make an array to hold edited files so we can parse it later
+      temp_files = Array.new
       #parse files & replace vars
       files.each do |file|
 
@@ -221,13 +223,12 @@ class App < Sinatra::Base
         file_ext      = File.extname(file)
         file_name     = File.basename(file,File.extname(file))
 
-
         # Check if type of file is scss
-        if file_ext = '.scss'
+        if file_ext == '.scss'
           # replace vars for scss
           new_content = file_content.gsub(/\$primary_color(\s)?:(\s)?(.+)/, "$primary_color: ZOMG!")
         # Check if type of file is sass
-        elsif file_ext = '.sass'
+        elsif file_ext == '.sass'
           # replace vars for sass
             new_content = file_content.gsub(/\$primary_color(\s)?:(\s)?(.+)/, "$primary_color: ZOMG!")
         end
@@ -238,11 +239,13 @@ class App < Sinatra::Base
           newfile = File.new("uploads/#{@domain}/#{file_name}-temp#{file_ext}", "w")
           # Open the File we just made, write the new content to the temp file.
           File.open(newfile, "w" ) { |f| f.write new_content }
+          # Let's also add that to the array for files that changed
+          temp_files.push("#{file_name}-temp#{file_ext}")
         end
       end
     end
 
-    "#{@sass}"
+    "#{@domain}"
 
 
 
