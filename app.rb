@@ -27,9 +27,9 @@ class App < Sinatra::Base
     :templates  => 'templates/'
   }
 
-#  configure do
-#    Compass.add_project_configuration("./config.rb")
-#  end
+  configure do
+    Compass.add_project_configuration("./config.rb")
+  end
 
   helpers do
     def sass(template, *args)
