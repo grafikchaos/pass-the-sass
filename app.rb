@@ -312,15 +312,17 @@ class App < Sinatra::Base
         end
 
 
-        # Check if rewriting the file is worth doing
+        # Check if rewriting the file is worth doing (If the new_content is not the same as file_content)
         if not file_content.eql?(@new_content)
 
           # Chek if current file is a temp file
-          if not temp_files.include? "#{file_name}+#{file_ext}"
+          if not temp_files.include? "#{file_name}#{file_ext}"
             # It's not, let's make a new temp file for it
             newfile = "#{file_name}-temp#{file_ext}"
-            # Let's also add that to the array for files that changed
-            temp_files.push(newfile)
+            # Let's also add that to the array for files that changed if it's not already in there.
+            if not temp_files.include? newfile
+              temp_files.push(newfile)
+            end
           else
             # The current file is already a temp file
             newfile = "#{file_name}#{file_ext}"
