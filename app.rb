@@ -2,6 +2,18 @@ require 'sinatra/base'
 require 'mustache/sinatra'
 require 'sass'
 
+def pts_log(time,domain,url="none",post)
+  url = url == "none" ? "none" : url
+  File.open("log/pass-the-sass.log", "w" ) { |f|
+    f.puts ""
+    f.puts "#{time} -- #{url} -- #{domain}"
+    f.puts ""
+    f.puts "#{post}"
+    f.puts ""
+    f.puts "==========================="
+  }
+end
+
 class App < Sinatra::Base
   register Mustache::Sinatra
   require 'views/layout'
@@ -47,94 +59,10 @@ class App < Sinatra::Base
   end
 
 
-#
-# curl 
-#
+
   post '/api/?' do
 
-    # themeName-versionNum
-    if params[:domain]
-      @domain = params[:domain].to_s + "/"
-    end
-    if params[:sass]
-      @sass = params[:sass]
-      @sass_file = params['sass'][:filename]
-      @sass_compile = @sass_file[0..-6]
-    end
-    if params[:deps]
-      @deps = params[:deps]
-      @deps_num = @deps.length
-    end
-    if params[:vars]
-      @vars = params[:vars]
-    end
-    if params[:compass]
-      @compass = params[:compass]
-    end
-
-    # Figure out which kind of sass file
-    if @sass_file and File.extname(@sass_file) == '.sass'
-      @type = 'sass/'
-    else
-      @type = 'scss/'
-    end
-
-    # Get only the dependancy file names
-    return_keys = [:filename]
-    key_index = Hash[return_keys.collect { |key| [key, true] }]
-    
-    dep_files = @deps.collect do |dep|
-      dep.select do |key,value|
-        key_index[key]
-      end
-    end
-
-    # Create directory for this domain
-    if @domain
-      #Check if the directory exists first
-      if File::directory?("uploads/" + @domain)
-        #do nothing, the target directory exists
-        #
-        # We already have the proper files, let's just replace vars & recompile!
-      else
-        # Make the directory!
-        Dir.mkdir("uploads/" + @domain)
-
-        # Store the to-be-compiled sass in the directory! (If the domain doesn't exist!)
-        if @type and @sass_file
-          File.open('uploads/' + @domain + '/' + @sass_file, "w") do |f|
-            f.write(params['sass'][:tempfile].read)
-          end
-        end
-
-        # Store the dependancies in the directory! (If the domain doesn't exist!)
-        if @deps
-          @deps.each { |dep, key|
-            File.open('uploads/'+ @domain + '/' + dep[:filename], "w") do |f|
-              f.write(dep[:tempfile].read)
-            end
-          }
-        end
-      end
-
-    # Domain wasn't posted - it's required, return error message.
-    else
-      e_output = "Sorry charlie, we need a domain to process your request. Try again!"
-    end
-
-
-    if @type == 'sass/'
-      sass :"#{@domain}/#{@sass_compile}-temp"
-    elsif @type == 'scss/'
-      scss :"#{@domain}/#{@sass_compile}-temp"
-    else
-      "#{e_output}"
-    end
-
-
-  end
-
-  post '/test/?' do
+    @e_output = String.new
 
     # themeName-versionNum
     if params[:domain]
@@ -184,6 +112,11 @@ class App < Sinatra::Base
       end
     end
 
+
+    # Firstly, we need to check if there is a domain,
+    # if so, we're going to save the files sent for that domain,
+    # if & only if, it doesn't already exist
+    # 
     # We need to create a directory for this domain
     if @domain
 
@@ -191,19 +124,18 @@ class App < Sinatra::Base
       if File::directory?("uploads/" + @domain + "/")
         #do nothing, the target directory exists
         #
-        # We already have the proper files, let's just replace vars & recompile!
+        # We already have the proper files, let's just move on to replace vars/imports & recompile!
       else
         # Make the directory!
         Dir.mkdir("uploads/" + @domain)
 
-        # Store the to-be-compiled sass in the directory! (If the domain doesn't exist!)
+        # Store the to-be-compiled sass in the directory! (Only if the domain doesn't exist!)
         if @type and @sass_file
           File.open('uploads/' + @domain + '/' + @sass_file, "w") do |f|
             f.write(params['sass'][:tempfile].read)
           end
         end
-
-        # Store the dependancies in the directory! (If the domain doesn't exist!)
+        # Store each dependancy in the directory! (Only if the domain doesn't exist!)
         if @deps
           @deps.each { |dep, key|
             File.open('uploads/'+ @domain + '/' + dep[:filename], "w") do |f|
@@ -211,62 +143,78 @@ class App < Sinatra::Base
             end
           }
         end
-      end
 
-    # Domain wasn't posted - it's required, return error message.
+      end
+    # Domain wasn't posted - it's required, pass error message.
     else
       @e_output = "Sorry charlie, we need a domain to process your request. Try again!"
     end
 
 
-    # Parse for Vars & Imports
+    # Parse for Vars
     if @domain
 
-      # get files in uploads/themeName-versionNum
+      # First, let's dump old temp files and resave the fresh versions of the current request.
+      #
+      # Get all the temp directory's files
+      temp_files = Dir["uploads/temp/*"]
+      # Delete each
+      temp_files.each do |temp_file|
+        File.delete(temp_file)
+      end
+
+      # Then, let's load current request files
       files = Dir["uploads/#{@domain}/*"]
-      #make an array to hold edited files so we can parse it later
-      temp_files = Array.new
+      # Copy those files to temp directory
+      files.each do |file|
+        # Copy File content
+        file_content  = File.read(file)
+        file_ext      = File.extname(file)
+        file_name     = File.basename(file,file_ext)
+
+        # Make new File in /uploads/temp/ named the same
+        File.new("uploads/temp/#{file_name}#{file_ext}", "w")
+        # Open that file & write the content we copied
+        File.open("uploads/temp/#{file_name}#{file_ext}", "w" ) { |f| f.write file_content }
+      end
+
+      # get files in uploads/themeName-versionNum
+      temp_files = Dir["uploads/temp/*"]
 
       # Parse for Vars
       #
       # For each file parse, replace vars, write new file, add to edited file array
-      files.each do |file|
+      temp_files.each do |temp_file|
 
         # Set up file variables to work with
-        file_content  = File.read(file)
-        file_ext      = File.extname(file)
-        file_name     = File.basename(file,File.extname(file))
+        temp_file_content  = File.read(temp_file)
+        temp_file_ext      = File.extname(temp_file)
+        temp_file_name     = File.basename(temp_file,File.extname(temp_file))
 
+        # Assign file contents to a variable so we can track if it's been updated later.
+        @new_content = temp_file_content
 
-        @new_content = file_content
         # Check if type of file is scss
-        if file_ext == '.scss'
+        if temp_file_ext == '.scss'
+          # Parse the file for each var hash key=>value item
           @vars_hash.each{ |key, value|
             # replace vars for scss
             @new_content = @new_content.gsub(/\$(\w+)(\s)?:(\s)?(.+)/) {|s| "$" + $1 == "#{key}" ? "#{key}" + ": #{value}" : s }
           }
         # Check if type of file is sass
-        elsif file_ext == '.sass'
+        elsif temp_file_ext == '.sass'
+          # Parse the file for each var hash key=>value item
           @vars_hash.each{ |key, value|
             # replace vars for sass
             @new_content = @new_content.gsub(/\$(\w+)(\s)?:(\s)?(.+)/) {|s| "$" + $1 == "#{key}" ? "#{key}" + ": #{value}" : s }
           }
         end
 
+        # Check if rewriting the file is even worth doing
+        if not temp_file_content.eql?(@new_content)
 
-        # Check if rewriting the file is worth doing
-        if not file_content.eql?(@new_content)
-
-          # It is! Make a new file - which we'll call the same but append "temp"
-          newfile = File.new("uploads/#{@domain}/#{file_name}-temp#{file_ext}", "w")
-          # Open the File we just made, write the new content to the temp file.
-          File.open(newfile, "w" ) { |f| f.write @new_content }
-          # Let's also add that to the array for files that changed
-          temp_files.push("#{file_name}-temp#{file_ext}")
-          # We're going to keep track of edited deps for each @import updating
-          if @dep_files.include? "#{file_name}#{file_ext}"
-            @edited_deps.push("#{file_name}-temp")
-          end
+          # It is! Open the File, write the new content to the temp file.
+          File.open(temp_file, "w" ) { |f| f.write @new_content }
 
         end
 
@@ -274,81 +222,25 @@ class App < Sinatra::Base
       #
       # End Parse for Vars
 
-
-      # Parse Imports
-      #
-      # We need to parse directory files for any @imports that should be updated.
-      files = Dir["uploads/#{@domain}/*"]
-
-      # All your files are belong to parse
-      files.each do |file|
-
-        # Set up file variables to work with.
-        file_content  = File.read(file)
-        file_ext      = File.extname(file)
-        file_name     = File.basename(file,File.extname(file))
-
-        @new_content = file_content
-        # Check if type of file is scss
-        if file_ext == '.scss'
-          # replace imports for scss (!!Note the semicolon!!)
-          @new_content = @new_content.gsub(/\@import(\s)+("|')(.+)("|')/) {|s|
-            if @edited_deps.include? "#{$3}-temp"
-              "@import" + $1 + $2 + "#{$3}-temp" + $4 + ";"
-            else
-              "#{s}"
-            end
-          }
-        # Check if type of file is sass
-        elsif file_ext == '.sass'
-          # replace imports for sass
-          @new_content = @new_content.gsub(/\@import(\s)+("|')(.+)("|')/) {|s|
-            if @edited_deps.include? "#{$3}-temp"
-              "@import" + $1 + $2 + "#{$3}-temp" + $4
-            else
-              "#{s}"
-            end
-          }
-        end
-
-
-        # Check if rewriting the file is worth doing (If the new_content is not the same as file_content)
-        if not file_content.eql?(@new_content)
-
-          # Chek if current file is a temp file
-          if not temp_files.include? "#{file_name}#{file_ext}"
-            # It's not, let's make a new temp file for it
-            newfile = "#{file_name}-temp#{file_ext}"
-            # Let's also add that to the array for files that changed if it's not already in there.
-            if not temp_files.include? newfile
-              temp_files.push(newfile)
-            end
-          else
-            # The current file is already a temp file
-            newfile = "#{file_name}#{file_ext}"
-          end
-
-          # Open the File we will be writing to, write the new content
-          File.open("uploads/#{@domain}/#{newfile}", "w" ) { |f| f.write @new_content }
-          # We're going to keep track of edited deps for each @import updating
-          if @dep_files.include? "#{file_name}" and not @edited_deps.include? "#{newfile}"
-            @edited_deps.push("#{newfile}")
-          end
-
-        end
-
-
-      end # files.each do |file|
-      #
-      # Parse Imports
-
-
     end # Parse for Vars & Imports
 
-    "#{temp_files}"
+    if @type == 'sass/'
 
+      pts_log(Time.new,params[:domain],params[:url], params)
+      sass :"/temp/#{@sass_compile}"
+    elsif @type == 'scss/'
+      pts_log(Time.new,params[:domain],params[:url], params)
+      scss :"/temp/#{@scss_compile}"
+    else
+      "#{e_output}"
+    end
 
   end
 
+  post '/test/?' do
+
+    "#{params}"
+
+  end
 
 end
