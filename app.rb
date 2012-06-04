@@ -67,7 +67,6 @@ class App < Sinatra::Base
     end
     if params[:vars]
       @vars = params[:vars]
-      @vars_num = @vars.length
     end
     if params[:compass]
       @compass = params[:compass]
@@ -120,7 +119,7 @@ class App < Sinatra::Base
 
     # Domain wasn't posted - it's required, return error message.
     else
-      "Sorry charlie, we need a domain to process your request. Try again!"
+      e_output = "Sorry charlie, we need a domain to process your request. Try again!"
     end
 
 
@@ -129,7 +128,7 @@ class App < Sinatra::Base
     elsif @type == 'scss/'
       scss :"#{@domain}/#{@sass_compile}-temp"
     else
-      "File extension error"
+      "#{e_output}"
     end
 
 
@@ -152,7 +151,12 @@ class App < Sinatra::Base
     end
     if params[:vars]
       @vars = params[:vars]
-      @vars_num = @vars.length
+      @vars_hash = Hash.new
+      @vars.each do |x|
+        var = x.split(":").first
+        value = x.split(":").last
+        @vars_hash[var] = "#{value}"
+      end 
     end
     if params[:compass]
       @compass = params[:compass]
@@ -175,7 +179,7 @@ class App < Sinatra::Base
       end
     end
 
-    # Create directory for this domain
+    # We need to create a directory for this domain
     if @domain
 
       #Check if the directory exists first
@@ -206,16 +210,21 @@ class App < Sinatra::Base
 
     # Domain wasn't posted - it's required, return error message.
     else
-      @output = "Sorry charlie, we need a domain to process your request. Try again!"
+      @e_output = "Sorry charlie, we need a domain to process your request. Try again!"
     end
 
 
+    # Parse for Vars & Imports
     if @domain
-      #get files in uploads/themeName-versionNum
+
+      # get files in uploads/themeName-versionNum
       files = Dir["uploads/#{@domain}/*"]
       #make an array to hold edited files so we can parse it later
       temp_files = Array.new
-      #parse files & replace vars
+
+      # Parse for Vars
+      #
+      # For each file parse, replace vars, write new file, add to edited file array
       files.each do |file|
 
         # Set up file variables to work with
@@ -223,29 +232,79 @@ class App < Sinatra::Base
         file_ext      = File.extname(file)
         file_name     = File.basename(file,File.extname(file))
 
+
+        @new_content = file_content
         # Check if type of file is scss
         if file_ext == '.scss'
-          # replace vars for scss
-          new_content = file_content.gsub(/\$primary_color(\s)?:(\s)?(.+)/, "$primary_color: ZOMG!")
+          @vars_hash.each{ |key, value|
+            # replace vars for scss
+            @new_content = @new_content.gsub(/\$(\w+)(\s)?:(\s)?(.+)/) {|s| "$" + $1 == "#{key}" ? "#{key}" + ": #{value}" : s }
+          }
         # Check if type of file is sass
         elsif file_ext == '.sass'
-          # replace vars for sass
-            new_content = file_content.gsub(/\$primary_color(\s)?:(\s)?(.+)/, "$primary_color: ZOMG!")
+          @vars_hash.each{ |key, value|
+            # replace vars for sass
+            @new_content = @new_content.gsub(/\$(\w+)(\s)?:(\s)?(.+)/) {|s| "$" + $1 == "#{key}" ? "#{key}" + ": #{value}" : s }
+          }
         end
 
+
         # Check if rewriting the file is worth doing
-          if not file_content.eql?(new_content)
+        if not file_content.eql?(@new_content)
+
           # It is! Make a new file - which we'll call the same but append "temp"
           newfile = File.new("uploads/#{@domain}/#{file_name}-temp#{file_ext}", "w")
           # Open the File we just made, write the new content to the temp file.
-          File.open(newfile, "w" ) { |f| f.write new_content }
+          File.open(newfile, "w" ) { |f| f.write @new_content }
           # Let's also add that to the array for files that changed
           temp_files.push("#{file_name}-temp#{file_ext}")
-        end
-      end
-    end
 
-    "#{@domain}"
+        end
+
+      end # files.each do |file|
+      #
+      # End Parse for Vars
+
+
+      # Parse Imports
+      #
+      # We need to parse directory files for any @imports that should be updated.
+      files = Dir["uploads/#{@domain}/*"]
+
+      # All your files are belong to parse
+      files.each do |file|
+
+        # Set up file variables to work with.
+        file_content  = File.read(file)
+        file_ext      = File.extname(file)
+        file_name     = File.basename(file,File.extname(file))
+
+        temp_files.each do |temp_file|
+
+          # Set up temp file vars to work with
+          t_file_content  = File.read("uploads/#{@domain}/#{temp_file}")
+          t_file_ext      = File.extname("uploads/#{@domain}/#{temp_file}")
+
+          # Check if type of file is scss
+          if file_ext == '.scss'
+            # replace imports for scss (!!Note the semicolon!!)
+            @new_content = @new_content.gsub(/\@import(\s)+("|')(.+)("|')/) {|s| "@import" + $1 + $2 + "#{temp_file}" + $4 + ";"}
+          # Check if type of file is sass
+          elsif file_ext == '.sass'
+            # replace imports for sass
+            @new_content = @new_content.gsub(/\@import(\s)+("|')(.+)("|')/) {|s| "@import" + $1 + $2 + "#{temp_file}" + $4 }
+          end
+
+        end # temp_files.each do |temp_file|
+
+      end # files.each do |file|
+      #
+      # Parse Imports
+
+
+    end # Parse for Vars & Imports
+
+    "#{@new_content}"
 
 
 
