@@ -9,6 +9,9 @@ else
   environment = :production
 end
 
+output_style = :compressed
+line_comments = false
+
 # This is common configuration
 #sass_dir = '../uploads'
 # images_dir = File.join 'static', 'images'
