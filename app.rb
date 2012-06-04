@@ -4,14 +4,14 @@ require 'sass'
 
 def pts_log(time,domain,url="none",post)
   url = url == "none" ? "none" : url
-  File.open("log/pass-the-sass.log", "w" ) { |f|
+  File.open("log/pass-the-sass.log", "a" ) do  |f|
     f.puts ""
     f.puts "#{time} -- #{url} -- #{domain}"
     f.puts ""
     f.puts "#{post}"
     f.puts ""
     f.puts "==========================="
-  }
+  end
 end
 
 class App < Sinatra::Base
@@ -157,7 +157,11 @@ class App < Sinatra::Base
       # First, let's dump old temp files and resave the fresh versions of the current request.
       #
       # Get all the temp directory's files
-      temp_files = Dir["uploads/temp/*"]
+      temp_dir = "uploads/temp"
+      if not File.directory?(temp_dir)
+        Dir.mkdir(temp_dir)
+      end
+      temp_files = Dir["#{temp_dir}/*"]
       # Delete each
       temp_files.each do |temp_file|
         File.delete(temp_file)
