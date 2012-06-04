@@ -1,6 +1,7 @@
 require 'sinatra/base'
 require 'mustache/sinatra'
 require 'sass'
+require 'compass'
 
 def pts_log(time,domain,url="none",post)
   url = url == "none" ? "none" : url
@@ -18,11 +19,17 @@ class App < Sinatra::Base
   register Mustache::Sinatra
   require 'views/layout'
 
+  set :app_file, __FILE__
+  set :root, File.dirname(__FILE__)
+
   set :mustache, {
     :views      => 'views/',
     :templates  => 'templates/'
   }
 
+#  configure do
+#    Compass.add_project_configuration("./config.rb")
+#  end
 
   helpers do
     def sass(template, *args)
@@ -35,8 +42,11 @@ class App < Sinatra::Base
     end
   end
 
-  set :sass_dir, '../uploads/'
-  set :scss_dir, '../uploads/'
+  set :sass_dir, '../uploads'
+  set :scss_dir, '../uploads'
+
+  set :sass, Compass.sass_engine_options
+  set :scss, Compass.sass_engine_options
 
 # Index of site
   get '/' do
@@ -233,10 +243,10 @@ class App < Sinatra::Base
     if @type == 'sass/'
 
       pts_log(Time.new,params[:domain],params[:url], params)
-      sass :"/temp/#{@sass_compile}"
+      sass :"temp/#{@sass_compile}", Compass.sass_engine_options 
     elsif @type == 'scss/'
       pts_log(Time.new,params[:domain],params[:url], params)
-      scss :"/temp/#{@scss_compile}"
+      scss :"temp/#{@sass_compile}", Compass.sass_engine_options 
     else
       "#{e_output}"
     end
