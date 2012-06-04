@@ -148,6 +148,11 @@ class App < Sinatra::Base
     if params[:deps]
       @deps = params[:deps]
       @deps_num = @deps.length
+      @edited_deps = Array.new
+      @dep_files = Array.new
+      @deps.each { |dep, key|
+        @dep_files.push(dep[:filename])
+      }
     end
     if params[:vars]
       @vars = params[:vars]
@@ -258,6 +263,10 @@ class App < Sinatra::Base
           File.open(newfile, "w" ) { |f| f.write @new_content }
           # Let's also add that to the array for files that changed
           temp_files.push("#{file_name}-temp#{file_ext}")
+          # We're going to keep track of edited deps for each @import updating
+          if @dep_files.include? "#{file_name}#{file_ext}"
+            @edited_deps.push("#{file_name}-temp")
+          end
 
         end
 
@@ -279,23 +288,53 @@ class App < Sinatra::Base
         file_ext      = File.extname(file)
         file_name     = File.basename(file,File.extname(file))
 
-        temp_files.each do |temp_file|
+        @new_content = file_content
+        # Check if type of file is scss
+        if file_ext == '.scss'
+          # replace imports for scss (!!Note the semicolon!!)
+          @new_content = @new_content.gsub(/\@import(\s)+("|')(.+)("|')/) {|s|
+            if @edited_deps.include? "#{$3}-temp"
+              "@import" + $1 + $2 + "#{$3}-temp" + $4 + ";"
+            else
+              "#{s}"
+            end
+          }
+        # Check if type of file is sass
+        elsif file_ext == '.sass'
+          # replace imports for sass
+          @new_content = @new_content.gsub(/\@import(\s)+("|')(.+)("|')/) {|s|
+            if @edited_deps.include? "#{$3}-temp"
+              "@import" + $1 + $2 + "#{$3}-temp" + $4
+            else
+              "#{s}"
+            end
+          }
+        end
 
-          # Set up temp file vars to work with
-          t_file_content  = File.read("uploads/#{@domain}/#{temp_file}")
-          t_file_ext      = File.extname("uploads/#{@domain}/#{temp_file}")
 
-          # Check if type of file is scss
-          if file_ext == '.scss'
-            # replace imports for scss (!!Note the semicolon!!)
-            @new_content = @new_content.gsub(/\@import(\s)+("|')(.+)("|')/) {|s| "@import" + $1 + $2 + "#{temp_file}" + $4 + ";"}
-          # Check if type of file is sass
-          elsif file_ext == '.sass'
-            # replace imports for sass
-            @new_content = @new_content.gsub(/\@import(\s)+("|')(.+)("|')/) {|s| "@import" + $1 + $2 + "#{temp_file}" + $4 }
+        # Check if rewriting the file is worth doing
+        if not file_content.eql?(@new_content)
+
+          # Chek if current file is a temp file
+          if not temp_files.include? "#{file_name}+#{file_ext}"
+            # It's not, let's make a new temp file for it
+            newfile = "#{file_name}-temp#{file_ext}"
+            # Let's also add that to the array for files that changed
+            temp_files.push(newfile)
+          else
+            # The current file is already a temp file
+            newfile = "#{file_name}#{file_ext}"
           end
 
-        end # temp_files.each do |temp_file|
+          # Open the File we will be writing to, write the new content
+          File.open("uploads/#{@domain}/#{newfile}", "w" ) { |f| f.write @new_content }
+          # We're going to keep track of edited deps for each @import updating
+          if @dep_files.include? "#{file_name}" and not @edited_deps.include? "#{newfile}"
+            @edited_deps.push("#{newfile}")
+          end
+
+        end
+
 
       end # files.each do |file|
       #
@@ -304,8 +343,7 @@ class App < Sinatra::Base
 
     end # Parse for Vars & Imports
 
-    "#{@new_content}"
-
+    "#{temp_files}"
 
 
   end
