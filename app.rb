@@ -58,8 +58,10 @@ class App < Sinatra::Base
     mustache :compile
   end
 
-
-
+# Use the following string at the command line for simple testing.
+#
+# curl -F "sass=@examples/example.sass;type=text/css" -F "deps[]=@examples/dependancy1.scss;type=text/css" -F "deps[]=@examples/dependancy2.scss;text/css" -F "deps[]=@examples/nested-dep.scss;type=text/css" -F "vars[]=\$primary_color: #101010" -F "vars[]=\$secondary_color: #F00" -F "vars[]=\$var3: 5px" -F "domain=test-1.0.0" http://localhost:9393/api
+ 
   post '/api/?' do
 
     @e_output = String.new
