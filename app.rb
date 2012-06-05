@@ -3,8 +3,8 @@ require 'mustache/sinatra'
 require 'sass'
 require 'compass'
 
-logfile = "pass-the-sass.log"
 def pts_log(time,domain,url="none",post)
+  logfile = "pass-the-sass.log"
   if not File.exists?(logfile)
     File.new(logfile, "w")
   end
