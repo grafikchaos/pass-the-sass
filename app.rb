@@ -107,9 +107,6 @@ class App < Sinatra::Base
         @vars_hash[var] = "#{value}"
       end 
     end
-    if params[:compass]
-      @compass = params[:compass]
-    end
 
     # Figure out which kind of sass file
     if @sass_file and File.extname(@sass_file) == '.sass'
@@ -148,7 +145,13 @@ class App < Sinatra::Base
         # Store the to-be-compiled sass in the directory! (Only if the domain doesn't exist!)
         if @type and @sass_file
           File.open('uploads/' + @domain + '/' + @sass_file, "w") do |f|
-            f.write(params['sass'][:tempfile].read)
+            # Let make sure it's set to @charset "UTF-8"
+            f.puts('@charset "UTF-8"')
+            # If it's a scss file, add a semicolon and line break, otherwise, just line break
+            @type == "scss/" ? f << ";\n" : f << "\n"
+            f_content = params['sass'][:tempfile].read
+            # Then write the uploaded sass file
+            f.write(f_content)
           end
         end
         # Store each dependancy in the directory! (Only if the domain doesn't exist!)
@@ -245,11 +248,12 @@ class App < Sinatra::Base
     end # Parse for Vars & Imports
 
     if @type == 'sass/'
-
       pts_log(Time.new,params[:domain],params[:url], params)
+      content_type 'text/css', :charset => 'UTF-8'
       sass :"temp/#{@sass_compile}", Compass.sass_engine_options 
     elsif @type == 'scss/'
       pts_log(Time.new,params[:domain],params[:url], params)
+      content_type 'text/css', :charset => 'UTF-8'
       scss :"temp/#{@sass_compile}", Compass.sass_engine_options 
     else
       "#{e_output}"
