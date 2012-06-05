@@ -4,6 +4,9 @@ require 'sass'
 require 'compass'
 
 def pts_log(time,domain,url="none",post)
+  if not exists?("log/pass-the-sass.log")
+    File.new("log/pass-the-sass.log", "w")
+  end
   url = url == "none" ? "none" : url
   File.open("log/pass-the-sass.log", "a" ) do  |f|
     f.puts ""
