@@ -5,7 +5,7 @@ require 'compass'
 
 logfile = "pass-the-sass.log"
 def pts_log(time,domain,url="none",post)
-  if not File.exists?("")
+  if not File.exists?(logfile)
     File.new(logfile, "w")
   end
   url = url == "none" ? "none" : url
