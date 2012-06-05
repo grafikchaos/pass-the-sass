@@ -3,12 +3,13 @@ require 'mustache/sinatra'
 require 'sass'
 require 'compass'
 
+logfile = "pass-the-sass.log"
 def pts_log(time,domain,url="none",post)
-  if not File.exists?("log/pass-the-sass.log")
-    File.new("log/pass-the-sass.log", "w")
+  if not File.exists?("")
+    File.new(logfile, "w")
   end
   url = url == "none" ? "none" : url
-  File.open("log/pass-the-sass.log", "a" ) do  |f|
+  File.open(logfile, "a" ) do  |f|
     f.puts ""
     f.puts "#{time} -- #{url} -- #{domain}"
     f.puts ""
