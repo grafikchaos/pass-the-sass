@@ -9,12 +9,5 @@ else
   environment = :production
 end
 
-output_style = :compressed
+output_style = :normal
 line_comments = false
-
-# This is common configuration
-#sass_dir = '../uploads'
-# images_dir = File.join 'static', 'images'
-# http_path = "/"
-# http_images_path = "/images"
-# http_stylesheets_path = "/stylesheets"
