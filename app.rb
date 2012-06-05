@@ -176,11 +176,15 @@ class App < Sinatra::Base
       # First, let's dump old temp files and resave the fresh versions of the current request.
       #
       # Get all the temp directory's files
-      temp_dir = "uploads/temp"
-      if not File.directory?(temp_dir)
-        Dir.mkdir(temp_dir)
+      uploads_dir = "uploads"
+      temp_dir = "temp"
+      if not File.directory?(uploads_dir)
+        Dir.mkdir(uploads_dir)
+        if not File.directory?(temp_dir)
+          Dir.mkdir(temp_dir)
+        end
       end
-      temp_files = Dir["#{temp_dir}/*"]
+      temp_files = Dir["#{uploads_dir}/#{temp_dir}/*"]
       # Delete each
       temp_files.each do |temp_file|
         File.delete(temp_file)
