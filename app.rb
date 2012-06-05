@@ -125,6 +125,10 @@ class App < Sinatra::Base
       end
     end
 
+    uploads_dir = "uploads"
+    if not File.directory?(uploads_dir)
+      Dir.mkdir(uploads_dir)
+    end
 
     # Firstly, we need to check if there is a domain,
     # if so, we're going to save the files sent for that domain,
