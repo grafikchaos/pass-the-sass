@@ -125,9 +125,16 @@ class App < Sinatra::Base
       end
     end
 
+    # Set up directorys we'll be using if they don't exist
     uploads_dir = "uploads"
-    if not File.directory?(uploads_dir)
-      Dir.mkdir(uploads_dir)
+    temp_dir = "temp"
+    
+    
+    if not File.directory?("#{uploads_dir}")
+      Dir.mkdir("#{uploads_dir}")
+    end
+    if not File.directory?("#{uploads_dir}/#{temp_dir}")
+      Dir.mkdir("#{uploads_dir}/#{temp_dir}")
     end
 
     # Firstly, we need to check if there is a domain,
@@ -138,30 +145,27 @@ class App < Sinatra::Base
     if @domain
 
       #Check if the directory exists first
-      if File::directory?("uploads/" + @domain + "/")
-        #do nothing, the target directory exists
-        #
-        # We already have the proper files, let's just move on to replace vars/imports & recompile!
-      else
+      if not File.directory?("#{uploads_dir}/#{@domain}")
         # Make the directory!
-        Dir.mkdir("uploads/" + @domain)
+        Dir.mkdir("#{uploads_dir}/" + @domain)
+      end
 
-        # Store the to-be-compiled sass in the directory! (Only if the domain doesn't exist!)
-        if @type and @sass_file
-          File.open('uploads/' + @domain + '/' + @sass_file, "w") do |f|
-            # Let make sure it's set to @charset "UTF-8"
-            f.puts('@charset "UTF-8"')
-            # If it's a scss file, add a semicolon and line break, otherwise, just line break
-            @type == "scss/" ? f << ";\n" : f << "\n"
-            f_content = params['sass'][:tempfile].read
-            # Then write the uploaded sass file
-            f.write(f_content)
-          end
+      # Store the to-be-compiled sass in the directory! (Only if the domain doesn't exist!)
+      if @type and @sass_file
+        File.open("#{uploads_dir}/#{@domain}/#{@sass_file}", "w") do |f|
+          # Let make sure it's set to @charset "UTF-8"
+          f.puts('@charset "UTF-8"')
+          # If it's a scss file, add a semicolon and line break, otherwise, just line break
+          @type == "scss/" ? f << ";\n" : f << "\n"
+          f_content = params['sass'][:tempfile].read
+          # Then write the uploaded sass file
+          f.write(f_content)
         end
+
         # Store each dependancy in the directory! (Only if the domain doesn't exist!)
         if @deps
           @deps.each { |dep, key|
-            File.open('uploads/'+ @domain + '/' + dep[:filename], "w") do |f|
+            File.open("#{uploads_dir}/#{@domain}/#{dep[:filename]}", "w") do |f|
               f.write(dep[:tempfile].read)
             end
           }
@@ -180,14 +184,6 @@ class App < Sinatra::Base
       # First, let's dump old temp files and resave the fresh versions of the current request.
       #
       # Get all the temp directory's files
-      uploads_dir = "uploads"
-      temp_dir = "temp"
-      if not File.directory?(uploads_dir)
-        Dir.mkdir(uploads_dir)
-        if not File.directory?(temp_dir)
-          Dir.mkdir(temp_dir)
-        end
-      end
       temp_files = Dir["#{uploads_dir}/#{temp_dir}/*"]
       # Delete each
       temp_files.each do |temp_file|
@@ -195,7 +191,7 @@ class App < Sinatra::Base
       end
 
       # Then, let's load current request files
-      files = Dir["uploads/#{@domain}/*"]
+      files = Dir["#{uploads_dir}/#{@domain}/*"]
       # Copy those files to temp directory
       files.each do |file|
         # Copy File content
@@ -204,13 +200,13 @@ class App < Sinatra::Base
         file_name     = File.basename(file,file_ext)
 
         # Make new File in /uploads/temp/ named the same
-        File.new("uploads/temp/#{file_name}#{file_ext}", "w")
+        File.new("#{uploads_dir}/#{temp_dir}/#{file_name}#{file_ext}", "w")
         # Open that file & write the content we copied
-        File.open("uploads/temp/#{file_name}#{file_ext}", "w" ) { |f| f.write file_content }
+        File.open("#{uploads_dir}/#{temp_dir}/#{file_name}#{file_ext}", "w" ) { |f| f.write file_content }
       end
 
       # get files in uploads/themeName-versionNum
-      temp_files = Dir["uploads/temp/*"]
+      temp_files = Dir["#{uploads_dir}/#{temp_dir}/*"]
 
       # Parse for Vars
       #
