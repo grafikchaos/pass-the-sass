@@ -1,3 +1,5 @@
+# Start server with: "$ bundle exec shotgun -O config.ru"
+
 require 'sinatra/base'
 require 'mustache/sinatra'
 require 'sass'
@@ -95,15 +97,15 @@ class App < Sinatra::Base
       @edited_deps = Array.new
       @dep_files = Array.new
       @deps.each { |dep, key|
-        @dep_files.push(dep[:filename])
+        @dep_files.push(@deps[dep][:filename])
       }
     end
     if params[:vars]
       @vars = params[:vars]
       @vars_hash = Hash.new
-      @vars.each do |x|
-        var = x.split(":").first
-        value = x.split(":").last
+      @vars.each do |x, y|
+        var = y.split(":").first
+        value = y.split(":").last
         @vars_hash[var] = "#{value}"
       end 
     end
@@ -165,8 +167,8 @@ class App < Sinatra::Base
         # Store each dependancy in the directory! (Only if the domain doesn't exist!)
         if @deps
           @deps.each { |dep, key|
-            File.open("#{uploads_dir}/#{@domain}/#{dep[:filename]}", "w") do |f|
-              f.write(dep[:tempfile].read)
+            File.open("#{uploads_dir}/#{@domain}/#{@deps[dep][:filename]}", "w") do |f|
+              f.write(@deps[dep][:tempfile].read)
             end
           }
         end
@@ -267,7 +269,27 @@ class App < Sinatra::Base
 
   post '/test/?' do
 
-    "#{params}"
+    if params[:deps]
+      @deps = params[:deps]
+      @deps_num = @deps.length
+      @edited_deps = Array.new
+      @dep_files = Array.new
+      @deps.each { |dep, key|
+        @dep_files.push(@deps[dep][:filename])
+      }
+    end
+
+    if params[:vars]
+      @vars = params[:vars]
+      @vars_hash = Hash.new
+      @vars.each do |x, y|
+        var = y.split(":").first
+        value = y.split(":").last
+        @vars_hash[var] = "#{value}"
+      end 
+    end
+
+    "#{@dep_files}"
 
   end
 
