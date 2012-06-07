@@ -1,4 +1,4 @@
-# Start server with: "$ bundle exec shotgun -O config.ru"
+# Start server for local dev with: "$ bundle exec shotgun -O config.ru"
 
 require 'sinatra/base'
 require 'mustache/sinatra'
