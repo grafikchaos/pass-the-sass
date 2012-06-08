@@ -83,8 +83,8 @@ class App < Sinatra::Base
     @e_output = String.new
 
     # themeName-versionNum
-    if params[:domain]
-      @domain = params[:domain].to_s
+    if params[:aid]
+      @domain = params[:aid].to_s
     end
     # The sass file to-be-recompiled
     if params[:sass]
