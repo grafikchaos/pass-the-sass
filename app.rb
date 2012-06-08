@@ -86,11 +86,13 @@ class App < Sinatra::Base
     if params[:domain]
       @domain = params[:domain].to_s
     end
+    # The sass file to-be-recompiled
     if params[:sass]
       @sass = params[:sass]
       @sass_file = params['sass'][:filename]
       @sass_compile = @sass_file[0...-5]
     end
+    # An array of dependancy files
     if params[:deps]
       @deps = params[:deps]
       @deps_num = @deps.length
@@ -100,6 +102,7 @@ class App < Sinatra::Base
         @dep_files.push(@deps[dep][:filename])
       }
     end
+    # An array of variable strings
     if params[:vars]
       @vars = params[:vars]
       @vars_hash = Hash.new
@@ -130,14 +133,15 @@ class App < Sinatra::Base
     # Set up directorys we'll be using if they don't exist
     uploads_dir = "uploads"
     temp_dir = "temp"
-    
-    
+
+
     if not File.directory?("#{uploads_dir}")
       Dir.mkdir("#{uploads_dir}")
     end
     if not File.directory?("#{uploads_dir}/#{temp_dir}")
       Dir.mkdir("#{uploads_dir}/#{temp_dir}")
     end
+
 
     # Firstly, we need to check if there is a domain,
     # if so, we're going to save the files sent for that domain,
@@ -269,27 +273,7 @@ class App < Sinatra::Base
 
   post '/test/?' do
 
-    if params[:deps]
-      @deps = params[:deps]
-      @deps_num = @deps.length
-      @edited_deps = Array.new
-      @dep_files = Array.new
-      @deps.each { |dep, key|
-        @dep_files.push(@deps[dep][:filename])
-      }
-    end
-
-    if params[:vars]
-      @vars = params[:vars]
-      @vars_hash = Hash.new
-      @vars.each do |x, y|
-        var = y.split(":").first
-        value = y.split(":").last
-        @vars_hash[var] = "#{value}"
-      end 
-    end
-
-    "#{@dep_files}"
+    "#{@params}"
 
   end
 
