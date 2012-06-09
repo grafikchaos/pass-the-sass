@@ -32,7 +32,7 @@ The endpoint that matters is at `/api/` - you'll make a POST with the following 
 
 ### sass
 
-Posting your sass or scss file. Put it in the sass parameter.
+Your sass or scss file. Put it in the sass parameter.
 
 ### app
 
@@ -56,11 +56,17 @@ This is mostly for internal use, to track what themes/locations requests are com
 
 #### Unix CLI curl:
 
-`curl -F "sass=@examples/example.sass;type=text/css" -F "deps[]=@examples/dependancy1.scss;type=text/css" -F "deps[]=@examples/dependancy2.scss;text/css" -F "deps[]=@examples/nested-dep.scss;type=text/css" -F "vars[]=\$primary_color: #101010" -F "vars[]=\$secondary_color: #F00" -F "vars[]=\$var3: 5px" -F "app=test-1.0.0" http://localhost:9393/api`
+First - clone this repo:
 
-You need to run this from the pass-the-sass directory you've just forked so relative paths are correct.
+`$ git clone git://github.com/LiftUX/pass-the-sass.git`
+
+Then, `cd pass-the-sass` & in run a curl using the files in the examples directories:
+
+`$ curl -F "sass=@examples/example.sass;type=text/css" -F "deps[]=@examples/dependancy1.scss;type=text/css" -F "deps[]=@examples/dependancy2.scss;text/css" -F "deps[]=@examples/nested-dep.scss;type=text/css" -F "vars[]=\$primary_color: #101010" -F "vars[]=\$secondary_color: #F00" -F "vars[]=\$var3: 5px" -F "app=test-1.0.0" http://localhost:9393/api`
+
 
 #### PHP curl:
+
 ```
 
 $url = 'http://localhost:9393/api';
@@ -87,11 +93,9 @@ $post = array(
   $response = curl_exec($ch);
   curl_close($ch);
   
-  ```
-  
-Then, you'd want to build how your app handles the $response. Which on success, returns the recompiled css but with your updated vars.
+```
 
-
+Then, you'd want to build how your app handles `$response`. Which on success, returns the recompiled css but with your updated vars.
 
 
 ## Where we're headed
