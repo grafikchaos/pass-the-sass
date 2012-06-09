@@ -69,7 +69,7 @@ class App < Sinatra::Base
     @sass = params[:sass]
     @deps = params[:deps]
     @vars = params[:vars]
-    @compass = params[:compass]
+
 
     mustache :compile
   end
