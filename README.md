@@ -14,7 +14,7 @@ This is a fairly simple, straight forward sinatra app, you've got a couple of op
 
 You can just send a POST to our endpoint at [http://pass-the-sass.herokuapp.com/api](http://pass-the-sass.herokuapp.com/api), which is what we would probably recommend.
 
-OR, you could fork it and run it yourself.. If you want to do that, a couple of things that will be useful are `bundle install` & `bundle exec shotgun -O config.ru`. This will install any/all dependancies you're missing (assuming you have ruby & gem already installed) and start an instance of the server running on localhost:9393/
+OR, you could fork it and run it yourself.. If you want to do that, a couple of things that will be useful are `$ bundle install` & `$ bundle exec shotgun -O config.ru`. This will install any/all dependancies you're missing (assuming you have ruby & gem already installed) and start an instance of the server running on localhost:9393/
 
 
 
@@ -60,7 +60,7 @@ First - clone this repo:
 
 `$ git clone git://github.com/LiftUX/pass-the-sass.git`
 
-Then, `cd pass-the-sass`, `bundle install` and start the server `bundle exec shotgun -O config.ru`
+Then, `$ cd pass-the-sass`, `$ bundle install` and start the server `$ bundle exec shotgun -O config.ru`
 
 Once the server is running, run an example curl that uses the files in the examples directory:
 
@@ -69,7 +69,7 @@ Once the server is running, run an example curl that uses the files in the examp
 
 #### PHP curl:
 
-```
+`
 
 $url = 'http://localhost:9393/api';
 $post = array(
@@ -95,7 +95,7 @@ $post = array(
   $response = curl_exec($ch);
   curl_close($ch);
   
-```
+`
 
 Then, you'd want to build how your app handles `$response`. Which on success, returns the recompiled css but with your updated vars.
 
