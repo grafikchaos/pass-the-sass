@@ -64,7 +64,8 @@ Then, `$ cd pass-the-sass`, `$ bundle install` and start the server `$ bundle ex
 
 Once the server is running, run an example curl that uses the files in the examples directory:
 
-`
+```
+
 $ curl -F "sass=@examples/example.sass;type=text/css"
 -F "deps[0]=@examples/dependancy1.scss;type=text/css"
 -F "deps[1]=@examples/dependancy2.scss;text/css"
@@ -73,7 +74,8 @@ $ curl -F "sass=@examples/example.sass;type=text/css"
 -F "vars[1]=\$secondary_color: #F00"
 -F "vars[2]=\$var3: 5px"
 -F "app=test-1.0.0" http://localhost:9393/api
-`
+
+```
 
 #### PHP curl:
 
