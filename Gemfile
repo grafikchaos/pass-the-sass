@@ -1,7 +1,5 @@
 source :rubygems
 
-ruby "1.9.2-p290"
-
 gem "mustache"
 gem "sinatra"
 gem "shotgun"
