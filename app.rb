@@ -65,7 +65,7 @@ class App < Sinatra::Base
   post '/compile/?' do
     @title = "Sass Passed - here is your css!"
 
-    @domain = params[:domain]
+    @app = params[:app]
     @sass = params[:sass]
     @deps = params[:deps]
     @vars = params[:vars]
@@ -76,15 +76,15 @@ class App < Sinatra::Base
 
 # Use the following string at the command line for simple testing.
 #
-# curl -F "sass=@examples/example.sass;type=text/css" -F "deps[]=@examples/dependancy1.scss;type=text/css" -F "deps[]=@examples/dependancy2.scss;text/css" -F "deps[]=@examples/nested-dep.scss;type=text/css" -F "vars[]=\$primary_color: #101010" -F "vars[]=\$secondary_color: #F00" -F "vars[]=\$var3: 5px" -F "domain=test-1.0.0" http://localhost:9393/api
+# curl -F "sass=@examples/example.sass;type=text/css" -F "deps[]=@examples/dependancy1.scss;type=text/css" -F "deps[]=@examples/dependancy2.scss;text/css" -F "deps[]=@examples/nested-dep.scss;type=text/css" -F "vars[]=\$primary_color: #101010" -F "vars[]=\$secondary_color: #F00" -F "vars[]=\$var3: 5px" -F "app=test-1.0.0" http://localhost:9393/api
  
   post '/api/?' do
 
     @e_output = String.new
 
     # themeName-versionNum
-    if params[:aid]
-      @domain = params[:aid].to_s
+    if params[:app]
+      @app = params[:app].to_s
     end
     # The sass file to-be-recompiled
     if params[:sass]
@@ -148,17 +148,17 @@ class App < Sinatra::Base
     # if & only if, it doesn't already exist
     # 
     # We need to create a directory for this domain
-    if @domain
+    if @app
 
       #Check if the directory exists first
-      if not File.directory?("#{uploads_dir}/#{@domain}")
+      if not File.directory?("#{uploads_dir}/#{@app}")
         # Make the directory!
-        Dir.mkdir("#{uploads_dir}/" + @domain)
+        Dir.mkdir("#{uploads_dir}/" + @app)
       end
 
       # Store the to-be-compiled sass in the directory! (Only if the domain doesn't exist!)
       if @type and @sass_file
-        File.open("#{uploads_dir}/#{@domain}/#{@sass_file}", "w") do |f|
+        File.open("#{uploads_dir}/#{@app}/#{@sass_file}", "w") do |f|
           # Let make sure it's set to @charset "UTF-8"
           f.puts('@charset "UTF-8"')
           # If it's a scss file, add a semicolon and line break, otherwise, just line break
@@ -171,7 +171,7 @@ class App < Sinatra::Base
         # Store each dependancy in the directory! (Only if the domain doesn't exist!)
         if @deps
           @deps.each { |dep, key|
-            File.open("#{uploads_dir}/#{@domain}/#{@deps[dep][:filename]}", "w") do |f|
+            File.open("#{uploads_dir}/#{@app}/#{@deps[dep][:filename]}", "w") do |f|
               f.write(@deps[dep][:tempfile].read)
             end
           }
@@ -185,7 +185,7 @@ class App < Sinatra::Base
 
 
     # Parse for Vars
-    if @domain
+    if @app
 
       # First, let's dump old temp files and resave the fresh versions of the current request.
       #
@@ -197,7 +197,7 @@ class App < Sinatra::Base
       end
 
       # Then, let's load current request files
-      files = Dir["#{uploads_dir}/#{@domain}/*"]
+      files = Dir["#{uploads_dir}/#{@app}/*"]
       # Copy those files to temp directory
       files.each do |file|
         # Copy File content
