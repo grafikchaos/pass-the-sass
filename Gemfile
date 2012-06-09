@@ -1,4 +1,4 @@
-source "https://rubygems.org"
+source :rubygems
 
 ruby "1.9.2-p290"
 
