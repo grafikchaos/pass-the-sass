@@ -69,7 +69,7 @@ Once the server is running, run an example curl that uses the files in the examp
 
 #### PHP curl:
 
-`
+``
 
 $url = 'http://localhost:9393/api';
 $post = array(
@@ -95,7 +95,7 @@ $post = array(
   $response = curl_exec($ch);
   curl_close($ch);
   
-`
+``
 
 Then, you'd want to build how your app handles `$response`. Which on success, returns the recompiled css but with your updated vars.
 
