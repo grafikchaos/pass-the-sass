@@ -62,7 +62,7 @@ First - clone this repo:
 
 Then, `$ cd pass-the-sass`, `$ bundle install` and start the server `$ bundle exec shotgun -O config.ru`
 
-Once the server is running, run an example curl that uses the files in the examples directory:
+Once the server is running, run an example curl that uses the files in the examples directory (but all on one line formatting error in markdown):
 
 ```
 $ curl -F "sass=@examples/example.sass;type=text/css"
