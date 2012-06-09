@@ -60,9 +60,11 @@ First - clone this repo:
 
 `$ git clone git://github.com/LiftUX/pass-the-sass.git`
 
-Then, `cd pass-the-sass` & in run a curl using the files in the examples directories:
+Then, `cd pass-the-sass`, `bundle install` and start the server `bundle exec shotgun -O config.ru`
 
-`$ curl -F "sass=@examples/example.sass;type=text/css" -F "deps[]=@examples/dependancy1.scss;type=text/css" -F "deps[]=@examples/dependancy2.scss;text/css" -F "deps[]=@examples/nested-dep.scss;type=text/css" -F "vars[]=\$primary_color: #101010" -F "vars[]=\$secondary_color: #F00" -F "vars[]=\$var3: 5px" -F "app=test-1.0.0" http://localhost:9393/api`
+Once the server is running, run an example curl that uses the files in the examples directory:
+
+`$ curl -F "sass=@examples/example.sass;type=text/css" -F "deps[0]=@examples/dependancy1.scss;type=text/css" -F "deps[1]=@examples/dependancy2.scss;text/css" -F "deps[2]=@examples/nested-dep.scss;type=text/css" -F "vars[0]=\$primary_color: #101010" -F "vars[1]=\$secondary_color: #F00" -F "vars[2]=\$var3: 5px" -F "app=test-1.0.0" http://localhost:9393/api`
 
 
 #### PHP curl:
