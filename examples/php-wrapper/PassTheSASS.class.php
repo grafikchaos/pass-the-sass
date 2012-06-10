@@ -225,7 +225,7 @@ if(!class_exists('PassTheSASS')){
         
         /**
         *    Send HTTP Request
-        *   Uses $this->post_data and $this->api. Sets public $this->response for debugging
+        *    Uses $this->post_data and $this->api. Sets public $this->response for debugging
         *    
         *    @return string response
         */
