@@ -137,7 +137,7 @@ First thing to understand, this is a tool we're building for an internal problem
 
 - We want to just accept a serialized string of data for all the files for performance reasons.
 - Support an options parameters that handles any sass command line options you might wanna send.
-- --PHP Class that we'll be implementing into the [Uptheme Framework](https://github.com/LiftUX/UpThemes-Framework/tree/settings-api) that makes creating/handling requests on theme option updates in a wordpress installtion super simple.--
+- ~~PHP Class that we'll be implementing into the [Uptheme Framework](https://github.com/LiftUX/UpThemes-Framework/tree/settings-api) that makes creating/handling requests on theme option updates in a wordpress installtion super simple.~~
 - AND MOOAAARRRR!
 
 
