@@ -5,7 +5,7 @@ require 'mustache/sinatra'
 require 'sass'
 require 'compass'
 
-def pts_log(time,domain,url="none",post)
+def pts_log(time,app,uid="none",post)
   logfile = "pass-the-sass.log"
   if not File.exists?(logfile)
     File.new(logfile, "w")
@@ -13,7 +13,7 @@ def pts_log(time,domain,url="none",post)
   url = url == "none" ? "none" : url
   File.open(logfile, "a" ) do  |f|
     f.puts ""
-    f.puts "#{time} -- #{url} -- #{domain}"
+    f.puts "#{time} -- #{uid} -- #{app}"
     f.puts ""
     f.puts "#{post}"
     f.puts ""
@@ -69,7 +69,7 @@ class App < Sinatra::Base
     @sass = params[:sass]
     @deps = params[:deps]
     @vars = params[:vars]
-    @compass = params[:compass]
+
 
     mustache :compile
   end
@@ -258,11 +258,11 @@ class App < Sinatra::Base
     end # Parse for Vars & Imports
 
     if @type == 'sass/'
-      pts_log(Time.new,params[:domain],params[:url], params)
+      pts_log(Time.new,params[:app],params[:uid], params)
       content_type 'text/css', :charset => 'UTF-8'
       sass :"temp/#{@sass_compile}", Compass.sass_engine_options 
     elsif @type == 'scss/'
-      pts_log(Time.new,params[:domain],params[:url], params)
+      pts_log(Time.new,params[:app],params[:uid], params)
       content_type 'text/css', :charset => 'UTF-8'
       scss :"temp/#{@sass_compile}", Compass.sass_engine_options 
     else
