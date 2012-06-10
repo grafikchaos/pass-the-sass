@@ -108,7 +108,7 @@ $post = array(
 
 Then, you'd want to build how your app handles `$response`. Which on success, returns the recompiled css but with your updated vars.
 
-### PHP Wrapper Class
+### PHP Wrapper
 
 - [Download the class](https://github.com/LiftUX/pass-the-sass/blob/master/examples/php-wrapper/PassTheSASS.class.php)
 - [View the implementation](https://github.com/LiftUX/pass-the-sass/blob/master/examples/php-wrapper/example.php)
