@@ -1,131 +1,131 @@
 <?php
 /** Pass the SASS Service Integration Class
-*	
-*	This class includes file/directory checking, request and error handling.
-*	One source SASS file and multiple dependencies SASS or SCSS files can be sent to the service.
-*	A list of variables are sent to the service to be injected into the output CSS.
+*    
+*    This class includes file/directory checking, request and error handling.
+*    One source SASS file and multiple dependencies SASS or SCSS files can be sent to the service.
+*    A list of variables are sent to the service to be injected into the output CSS.
 *
-*	@link https://github.com/LiftUX/pass-the-sass - See our github page for full documentation of the service
-*	@link http://pass-the-sass.herokuapp.com/test/ - Debugging API endpoint for returning posted params - Use PASS_THE_SASS_DEBUG to toggle debug endpoint
-*	@version 0.1 
-*	@author Brian Fegter for UpThemes - http://upthemes.com
-*	@license http://opensource.org/licenses/gpl-license.php GNU Public License
+*    @link https://github.com/LiftUX/pass-the-sass - See our github page for full documentation of the service
+*    @link http://pass-the-sass.herokuapp.com/test/ - Debugging API endpoint for returning posted params - Use PASS_THE_SASS_DEBUG to toggle debug endpoint
+*    @version 0.1 
+*    @author Brian Fegter for UpThemes - http://upthemes.com
+*    @license http://opensource.org/licenses/gpl-license.php GNU Public License
 */
 
 if(!class_exists('PassTheSASS')){
     class PassTheSASS{
-    	
-    	/**
-    	* 	API Url
-    	*	@link 
-    	* 	@var string
-    	*/
+        
+        /**
+        *   API Url
+        *   @link 
+        *   @var string
+        */
         private $api = 'http://pass-the-sass.herokuapp.com/api/';
         
         /**
-    	* 	SASS Origin File Path
-    	* 	@var string
-    	*/
+        *   SASS Origin File Path
+        *   @var string
+        */
         protected $sass_path;
         
         /**
-    	* 	SASS Origin File Path
-    	* 	@var string
-    	*/
+        *   SASS Origin File Path
+        *   @var string
+        */
         protected $write_path;
         
         /**
-    	* 	SASS/SCSS Dependency File Names
-    	* 	@var array
-    	*/
+        *   SASS/SCSS Dependency File Names
+        *   @var array
+        */
         protected $deps = array();
         
         /**
-    	* 	SASS Variables
-    	* 	@var array
-    	*/
+        *   SASS Variables
+        *   @var array
+        */
         protected $vars = array();
         
         /**
-    	* 	Application ID (Software Identifier)
-    	* 	@var string
-    	*/
+        *   Application ID (Software Identifier)
+        *   @var string
+        */
         protected $app;
         
         /**
-    	* 	Unique Identifier (Domain or Server Name)
-    	* 	@var string
-    	*/
+        *   Unique Identifier (Domain or Server Name)
+        *   @var string
+        */
         protected $uid;
         
         /**
-    	* 	Debug Mode
-    	* 	@var bool
-    	*/
+        *   Debug Mode
+        *   @var bool
+        */
         protected $debug = false;
         
         /**
-    	* 	Request Post Data
-    	* 	@var array
-    	*/
+        *   Request Post Data
+        *   @var array
+        */
         private $post_data;
         
         /**
-    	* 	Errors Log
-    	* 	@var array
-    	*/
+        *   Errors Log
+        *   @var array
+        */
         public $errors;
         
         /**
-    	* 	Request Response
-    	* 	@var string
-    	*/
+        *   Request Response
+        *   @var string
+        */
         public $response;
         
         /**
-        *	Constructor
-        *	
-        *	Argument Keys (* Indicates Required)
-        *		
-        *		sass_path * - (string) - full path to the base SASS file
-        *  		write_path * - (string) - full path to the css file to write compiled output
-		*  		vars * - (array) - key/value pairs - array('foo'=>'bar', 'foobar'=>'zomg')
-		*  		app * - (string) - application name
-		*  		deps - (array) - file names - array('file1.sass', 'file2.scss') - Must be sass/scss file types and live as siblings to the origin SASS file
-		*  		uid - (string) - domain name - defaults to $_SERVER['SERVER_NAME']
-		*  		api - (string) - URL to API endpoint - defaults to http://pass-the-sass.herokuapp.com/api
-		*
-		*	@param array arguments
-		*	@return void
+        *    Constructor
+        *
+        *    Argument Keys (* Indicates Required)
+        *
+        *      sass_path * - (string) - full path to the base SASS file
+        *      write_path * - (string) - full path to the css file to write compiled output
+        *      vars * - (array) - key/value pairs - array('foo'=>'bar', 'foobar'=>'zomg')
+        *      app * - (string) - application name
+        *      deps - (array) - file names - array('file1.sass', 'file2.scss') - Must be sass/scss file types and live as siblings to the origin SASS file
+        *      uid - (string) - domain name - defaults to $_SERVER['SERVER_NAME']
+        *      api - (string) - URL to API endpoint - defaults to http://pass-the-sass.herokuapp.com/api
+        *
+        *    @param array arguments
+        *    @return void
         */
         public function __construct($args){
             $this->_set_vars($args);
         }
         
         /**
-        *	Set Class Variables
-        *	
-        *	Extracts array keys to class variables. Checks for debug mode. Checks if included files and directories exist.
+        *    Set Class Variables
         *
-        *	@uses PassTheSASS::__construct param - See arguments documentation
-        *	@param array arguments
-        *	@return void
+        *    Extracts array keys to class variables. Checks for debug mode. Checks if included files and directories exist.
+        *
+        *    @uses PassTheSASS::__construct param - See arguments documentation
+        *    @param array arguments
+        *    @return void
         */
         private function _set_vars($args){
             extract($args);
             
             # Set Debug Mode
             if(defined('PASS_THE_SASS_DEBUG')){
-	            if(PASS_THE_SASS_DEBUG === true)
-	            	$this->debug = true;
-	        }
-	        
-	        # Set API Endpoint
-	        if($this->debug)
-	        	$api = 'http://pass-the-sass.herokuapp.com/test';
-	        else{
-            	if(isset($api))
-            		$this->api = $api;
+                if(PASS_THE_SASS_DEBUG === true)
+                    $this->debug = true;
+            }
+
+            # Set API Endpoint
+            if($this->debug)
+                $api = 'http://pass-the-sass.herokuapp.com/test';
+            else{
+                if(isset($api))
+                    $this->api = $api;
             }
             
             # Verify SASS Path
@@ -137,7 +137,7 @@ if(!class_exists('PassTheSASS')){
             else
                 $this->_handle_error('Please include the full path to your SASS file.');
             
-            # Deps Directory Fallback	
+            # Deps Directory Fallback    
             $this->deps_dir = dirname($sass_path).'/';
 
             # Set Write Path for CSS Output
@@ -179,19 +179,18 @@ if(!class_exists('PassTheSASS')){
         }
     
         /**
-        *	Set Post Data for cURL
-        *	
-        *	Populates the $this->post_data array
-        *		sass (string) path to file
-        *		vars (array) associative array of key/value pairs
-        *		uid (string) unique identifier
-        *		app (string) application identifier
-        *		
-        *	
-        *	@return void
+        *    Set Post Data for cURL
+        *    
+        *    Populates the $this->post_data array
+        *      sass (string) path to file
+        *      vars (array) associative array of key/value pairs
+        *      uid (string) unique identifier
+        *      app (string) application identifier
+        *
+        *    @return void
         */
         private function _set_post_data(){
-        	$post = array();
+            $post = array();
             
             # Set Dependency Files
             $i = 0;
@@ -225,10 +224,10 @@ if(!class_exists('PassTheSASS')){
         }
         
         /**
-        *	Send HTTP Request
-        * 	Uses $this->post_data and $this->api. Sets public $this->response for debugging
-        *	
-        *	@return string response
+        *    Send HTTP Request
+        *   Uses $this->post_data and $this->api. Sets public $this->response for debugging
+        *    
+        *    @return string response
         */
         private function _send_http_request(){
             $ch = curl_init();
@@ -243,26 +242,26 @@ if(!class_exists('PassTheSASS')){
         }
         
         /**
-        *	Write supplied contents to CSS file
-        *	@param string file contents
-        *	@return bool
+        *    Write supplied contents to CSS file
+        *    @param string file contents
+        *    @return bool
         */
         private function _write_to_file($contents){
             return file_put_contents($this->write_path, $contents) ? true : false;
         }
         
         /**
-        *	Compile Bootstrap Template Tag
-        *	
-        *	Publicly visible method for use in application
-        *	
-        *		Set Post Data - ::_set_post_data()
-        *		Send HTTP Request - ::_send_http_request()
-        *		Write Contents to File - ::_write_to_file()
+        *    Compile Bootstrap Template Tag
+        *    
+        *    Publicly visible method for use in application
+        *    
+        *      Set Post Data - ::_set_post_data()
+        *      Send HTTP Request - ::_send_http_request()
+        *      Write Contents to File - ::_write_to_file()
         *
-        *	@return bool
+        *    @return bool
         */
-        public function compile(){		
+        public function compile(){        
             $this->_set_post_data();
     
             if($this->errors)
@@ -276,7 +275,7 @@ if(!class_exists('PassTheSASS')){
             
             # Do not write debug code to file
             if($this->debug)
-            	return;
+                return;
             
             if($this->_write_to_file($contents))
                 return true;
@@ -287,22 +286,22 @@ if(!class_exists('PassTheSASS')){
         }
         
         /**
-        *	Check if Array is Associative
-        *	@param array $array
-        *	@return string psuedo-bool
+        *    Check if Array is Associative
+        *    @param array $array
+        *    @return string psuedo-bool
         */
         private function _is_assoc_array($array){
             return (count(array_filter(array_keys($array),'is_string')) == count($array));
         }
         
         /**
-        *	Error Handling
-        *	Checks for graceful error handling. Graceful mode adds errors to a publicly visible array in $this->errors var.
-        *	Dies on single error in default mode.
-        *	@param string error message
-        *	@param string context of error
-        *	@return bool
-        *	@return die
+        *    Error Handling
+        *    Checks for graceful error handling. Graceful mode adds errors to a publicly visible array in $this->errors var.
+        *    Dies on single error in default mode.
+        *    @param string error message
+        *    @param string context of error
+        *    @return bool
+        *    @return die
         */
         private function _handle_error($msg, $context = ''){
             if(defined('PASS_THE_SASS_GRACEFUL_MODE')){
@@ -315,8 +314,8 @@ if(!class_exists('PassTheSASS')){
         }
         
         /**
-        *	API For Getting Errors
-        *	@return mixed - false if no errors - array if errors exists
+        *    API For Getting Errors
+        *    @return mixed - false if no errors - array if errors exists
         */
         public function get_errors(){
             if(is_array($this->errors))
