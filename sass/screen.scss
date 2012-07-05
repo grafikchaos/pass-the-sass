@@ -4,7 +4,6 @@
 body{
   background: #555;
   color: white;
-  font-family: "HelveticaNeue","Helvetica Neue", Helvetica, Arial, Tahoma, sans-serif;
   font-size: 100%;
   line-height: 140%;
 }
@@ -38,7 +37,6 @@ textarea{
   border: 0;
   margin-bottom: 1px;
   outline: none;
-  font-family: "HelveticaNeue","Helvetica Neue", Helvetica, Arial, Tahoma, sans-serif;
   font-size: 110%;
   border: 3px solid #eee;
   @include box-shadow(rgba(0,0,7,1));
@@ -73,7 +71,6 @@ input[type="submit"]{
   font-weight: bold;
   font-size: 140%;
   border-radius: 8px;
-  font-family: Helvetica;
   border: none;
   padding: 15px 10px;
   width: 737px;

@@ -36,7 +36,6 @@ article, aside, details, figcaption, figure, footer, header, hgroup, menu, nav, 
 body {
   background: #555;
   color: white;
-  font-family: "HelveticaNeue","Helvetica Neue", Helvetica, Arial, Tahoma, sans-serif;
   font-size: 100%;
   line-height: 140%; }
 
@@ -66,7 +65,6 @@ input[type="text"], textarea {
   border: 0;
   margin-bottom: 1px;
   outline: none;
-  font-family: "HelveticaNeue","Helvetica Neue", Helvetica, Arial, Tahoma, sans-serif;
   font-size: 110%;
   border: 3px solid #eee;
   -webkit-box-shadow: #000007;
@@ -97,7 +95,6 @@ input[type="submit"] {
   font-weight: bold;
   font-size: 140%;
   border-radius: 8px;
-  font-family: Helvetica;
   border: none;
   padding: 15px 10px;
   width: 737px;

@@ -34,7 +34,7 @@ class App < Sinatra::Base
   }
 
   configure do
-    Compass.add_project_configuration("./config.rb")
+    Compass.add_project_configuration("./pass_config.rb")
   end
 
   helpers do
@@ -57,7 +57,7 @@ class App < Sinatra::Base
 # Index of site
   get '/' do
     @title = "Pass the SASS"
-    @content = "Welcome to Pass the SASS"
+    @content = "What is this? Pass the SASS is a web service that accepts SASS/Compass and generates CSS from it. That means you write the SASS, then we take it, process it, and return usable CSS code."
     mustache :index
   end
 
