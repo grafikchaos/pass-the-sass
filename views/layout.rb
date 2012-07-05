@@ -8,7 +8,7 @@ class App
         @content
       end
       def year
-        @time.year
+        time.year
       end
     end
   end
