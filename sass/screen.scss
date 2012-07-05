@@ -41,6 +41,7 @@ textarea{
   outline: none;
   font-size: 110%;
   border: 3px solid #eee;
+  resize: none;
   @include box-shadow(rgba(0,0,7,1));
 }
 
