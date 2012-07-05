@@ -7,9 +7,6 @@ class App
       def content
         @content
       end
-      def year
-        time.year
-      end
     end
   end
 end
