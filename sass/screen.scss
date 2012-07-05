@@ -1,10 +1,13 @@
+/* @override 
+	http://www.passthesass.com/stylesheets/screen.css */
+
 @import "compass/reset";
 @import "compass/css3";
 
 body{
   background: #555;
   color: white;
-  font-size: 140%;
+  font-size: 100%;
   line-height: 140%;
 }
 
@@ -14,7 +17,6 @@ a:visited{
   color: #f9f9f9;
   text-decoration: none;
   border-bottom: 1px solid rgba(255,255,255,.3);
-  font-weight: bold;
   @include transition(200ms all linear);
 }
 
@@ -91,6 +93,11 @@ input[type="submit"]{
   width: 780px;
 }
 
+header p{
+  font-size: 1.4em;
+  line-height: 1.4em;
+}
+
 #title{
   width: 780px;
   height: 140px;
@@ -98,8 +105,9 @@ input[type="submit"]{
   margin-top: 60px;
   text-indent: -9999px;
   overflow: hidden;
-  padding-bottom: 20px;
-  border-bottom: 30px solid rgba(255,255,255,1);
+  padding-bottom: 70px;
+  margin-bottom: 25px;
+  border-bottom: 6px solid rgba(255,255,255,1);
   @include transition(200ms all linear);
 
   &:hover{
@@ -116,5 +124,5 @@ form{
 
 footer{
   text-align: center;
-  font-size: 74%;
+  font-size: 82%;
 }
