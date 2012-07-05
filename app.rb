@@ -56,14 +56,14 @@ class App < Sinatra::Base
 
 # Index of site
   get '/' do
-    @title = "hi there"
-    @content = "Welcome to Pass the Sass"
+    @title = "Pass the SASS"
+    @content = "Welcome to Pass the SASS"
     mustache :index
   end
 
 # Post for site compiles
   post '/compile/?' do
-    @title = "Sass Passed - here is your css!"
+    @title = "SASS Passed - here is your CSS!"
 
     @app = params[:app]
     @sass = params[:sass]

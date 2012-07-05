@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      hi there
+    </title>
+    <link href="public/stylesheets/screen.css" type="text/css" rel="stylesheet" media="screen">
+    <script type="text/javascript" src="http://use.typekit.com/pce4yhp.js"></script>
+    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+  </head>
+  <body>
+    <div id="main">
+
+      <header id="branding">
+        <h1 id="title">hi there</h1>
+        <p>What is this? Pass the SASS is a web service that accepts SASS/Compass and generates CSS from it. That means you write the SASS, then we take it, process it, and return usable CSS code.</p>
+        <p>Enter your SASS below and click 'Submit' to enjoy the awesomeness.</p>
+      </header>
+
+      <form action="/compile/" method="POST">
+        <input name="vars" placeholder="updated vars (e.g. $var1=example,$var2=#000,etc..)" type="text">
+        <textarea name="sass" placeholder="Your Sass"></textarea>
+        <label for="compass"><input name="compass" type="checkbox">Compass?</label>
+        <input name="submit" type="submit">
+      </form>
+
+      <footer>
+        <p>Pass the SASS is a simple web service provided by <a href="http://liftux.com">Lift</a> and <a href="http://upthemes.com">UpThemes</a>. All rights reserved. Copyright &copy; 2012 Walmedia, LLC</p>
+      </footer>
+
+    </div>
+  </body>
+</html>

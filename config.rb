@@ -9,5 +9,6 @@ else
   environment = :production
 end
 
+css_dir = "public/stylesheets"
 output_style = :normal
 line_comments = false
