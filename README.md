@@ -108,6 +108,26 @@ $post = array(
 
 Then, you'd want to build how your app handles `$response`. Which on success, returns the recompiled css but with your updated vars.
 
+### PHP Wrapper
+
+- [Download the class](https://github.com/LiftUX/pass-the-sass/blob/master/examples/php-wrapper/PassTheSASS.class.php)
+- [View the implementation](https://github.com/LiftUX/pass-the-sass/blob/master/examples/php-wrapper/example.php)
+
+```
+require_once 'PassTheSASS.class.php';
+define('PASS_THE_SASS_DIR', dirname(__FILE__));
+
+$args = array(
+  'sass_path' => PASS_THE_SASS_DIR.'/sass/example.sass',
+  'write_path' => PASS_THE_SASS_DIR.'/css/style.css',
+	'vars' => array('primary_color' => '#000', 'secondary_color' => '#e3e3e3', 'var3' => '20px'),
+	'deps' => array('dependency1.scss', 'dependency2.scss', 'nested-dep.scss'),
+	'app' => rand(0, 9999)
+);
+
+$sassy = new PassTheSASS($args);
+$result = $sassy->compile();
+```
 
 ## Where we're headed
 
@@ -117,7 +137,7 @@ First thing to understand, this is a tool we're building for an internal problem
 
 - We want to just accept a serialized string of data for all the files for performance reasons.
 - Support an options parameters that handles any sass command line options you might wanna send.
-- PHP Class that we'll be implementing into the [Uptheme Framework](https://github.com/LiftUX/UpThemes-Framework/tree/settings-api) that makes creating/handling requests on theme option updates in a wordpress installtion super simple.
+- ~~PHP Class that we'll be implementing into the [Uptheme Framework](https://github.com/LiftUX/UpThemes-Framework/tree/settings-api) that makes creating/handling requests on theme option updates in a wordpress installtion super simple.~~
 - AND MOOAAARRRR!
 
 
