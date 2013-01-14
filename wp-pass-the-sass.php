@@ -8,7 +8,13 @@ Author: Matthew Simo
 Author URI: http://matthewsimo.com/
 */
 
-class WP_pjax {
+define( 'PTS_PLUGIN_PATH', plugin_dir_path( __FILE__ ) );
+define( 'PTS_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
+
+# Require the PassTheSass PHP Class Wrapper
+require_once( PTS_PLUGIN_PATH . 'Class/PassTheSass.class.php' );
+
+class WP_PassTheSass {
 
   public function __construct(){
 
