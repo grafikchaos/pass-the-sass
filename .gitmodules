@@ -1,0 +1,3 @@
+[submodule "Class"]
+	path = Class
+	url = git@github.com:LiftUX/pass-the-sass.git
