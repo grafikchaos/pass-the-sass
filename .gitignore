@@ -1,5 +1,6 @@
 .sass-cache/
 passthesass.com.esproj/
 .DS_Store
-uploads/temp/
+Class/
+uploads/*/
 tmp/
